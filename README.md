@@ -1,6 +1,6 @@
 **SLEEP, HEALTH AND LIFESTYLE**  
 **Required imports:**  
-import pandas as pd  
+'''import pandas as pd  
 import numpy as np
 
 from sklearn.model\_selection import train\_test\_split  
@@ -10,7 +10,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.linear\_model import LinearRegression  
 from sklearn.linear\_model import Ridge  
 from sklearn.metrics import mean\_squared\_error  
-from sklearn.model\_selection import KFold, cross\_val\_score
+from sklearn.model\_selection import KFold, cross\_val\_score'''
 
 **Data Preprocessing:**  
 1\. Reading the Dataset \- 
