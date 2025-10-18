@@ -172,6 +172,13 @@ High R^2 on both train (0.99) and test (0.88) showing that the model captures st
 
 However, there’s a drop in R² from training (0.99) to test (0.88). This suggests slight overfitting where the model performs a bit better on known data than unseen data. The gap is not big, so the model still generalizes well.
 ```
+**Results analysis:**
+
+**Linear Regression**
+
+High R^2 on both train (0.99) and test (0.88) showing that the model captures strong linear relationships and can explain most of the variation in the data. MSE is small in both cases and shows that predictions are generally close to their actual values.
+However, there’s a drop in R² from training (0.99) to test (0.88). This suggests slight overfitting where the model performs a bit better on known data than unseen data. The gap is not big, so the model still generalizes well.
+
 **Ridge Regression**
 
 As the alpha value increases, Training R^2 slightly decreases as regularisation limits model flexibility. Test R^2 increases and difference of R^2 values between train and test set as overfitting reduces. MSE also decreases on the test set showing a better generalisation.
