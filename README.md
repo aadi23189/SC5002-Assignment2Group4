@@ -1,5 +1,6 @@
 **SLEEP, HEALTH AND LIFESTYLE**  
 **Required imports:**  
+```python
 import pandas as pd  
 import numpy as np
 
@@ -11,48 +12,48 @@ from sklearn.linear\_model import LinearRegression
 from sklearn.linear\_model import Ridge  
 from sklearn.metrics import mean\_squared\_error
 from sklearn.model\_selection import KFold, cross\_val\_score
-
+```
 **Data Preprocessing:**  
 1\. Reading the Dataset \- 
 
 * Reads the CSV dataset into a DataFrame named **df**.  
 * `encoding='latin1'` handles special characters.  
 * `df.head()` displays the first 5 rows for a quick look.
-
+```python
 df \= pd.read\_csv("Sleep\_health\_and\_lifestyle\_dataset.csv", encoding='latin1')  
 df.head()
-
+```
 2\. Handling the missing values \- 
 
 * For **numerical columns**, missing values are replaced with the **mean**.  
 * For **categorical columns**, missing values are replaced with the **most frequent value (mode)**.
-
+```python
 for col in df.select\_dtypes(include=\[np.number\]).columns:  
     df\[col\] \= df\[col\].fillna(df\[col\].mean())
 
 for col in df.select\_dtypes(include=\['object'\]).columns:  
     df\[col\] \= df\[col\].fillna(df\[col\].mode()\[0\])
-
+```
 3\. Splitting the Dataset
 
 * **X** \= all input features except *Person ID* (irrelevant) and *Stress Level* (target).  
 * **y** \= target variable (*Stress Level*).  
 * Splits into **training (65%)** and **testing (35%)** sets for model evaluation.  
 * `random_state=42` ensures reproducibility.
-
+```python
 X \= df.drop(\['Person ID', 'Stress Level'\], axis \= 1\)  
 y \= df\['Stress Level'\]
 
 X\_train, X\_test, y\_train, y\_test \= train\_test\_split(  
     X, y, test\_size=0.35, random\_state=42
-
+```
 4\. Identifying Categorical and Numerical columns and creating a preprocessor
 
 * Builds a transformation pipeline:  
   * Applies **OneHotEncoder** to categorical columns (turns text into numeric dummy variables).  
   * **Passes numerical columns unchanged** (they’ll be scaled next).  
 * handle\_unknown='ignore' prevents errors if unseen categories appear in test data.
-
+```python
 categorical\_cols \= X\_train.select\_dtypes(include=\['object'\]).columns
 
 numerical\_cols \= X\_train.select\_dtypes(include=\[np.number\]).columns
@@ -66,7 +67,7 @@ preprocessor \= ColumnTransformer(
         ('num', 'passthrough', numerical\_cols)
 
     \])
-
+```
 5\. Transforming Data and Scaling Numerical Features
 
 * **preprocessor.fit\_transform()** → fits encoders and transforms the training data.  
@@ -74,7 +75,7 @@ preprocessor \= ColumnTransformer(
 * After encoding, data may become **sparse** (many zeros), so with\_mean=False avoids  
 * centering (which breaks sparse matrices).  
 * **StandardScaler** → standardizes all features (mean=0, std=1) so no feature dominates due to scale differences.
-
+```python
 X\_train\_processed \= preprocessor.fit\_transform(X\_train)
 
 X\_test\_processed \= preprocessor.transform(X\_test)
@@ -82,27 +83,27 @@ X\_test\_processed \= preprocessor.transform(X\_test)
 scaler \= StandardScaler(with\_mean=False)  \# with\_mean=False because of sparse matrix
 
 X\_train\_scaled \= scaler.fit\_transform(X\_train\_processed)
-
+```
 **Model Fitting**
 
 **Linear regression:** 
 
 1.Train the model using our train dataset:
-
+```python
 \#train the model using train dataset  
 linreg \= LinearRegression()           Define the model  
 linreg.fit(X\_train\_scaled, y\_train)   Fit the model to our data
-
+```
 2\. Calculate the predicted values of y using X input values based on the model, which will later be used to calculate the residuals (errors). We do so for both training and testing set, such that we can compare between them:
-
+```python
 \#predicted values of the y training dataset  
 y\_train\_pred \= linreg.predict(X\_train\_scaled) 
 
 \#apply yhe model to the test data set  
 y\_test\_pred \= linreg.predict(X\_test\_scaled)
-
+```
 3.Check the goodness of fit of the Linear regression model by calculating the R^2 values and MSE. By comparing between the training and testing set, we can see whether our model overfits
-
+```python
 \# Check the Goodness of Fit (on Train Data)  
 print("Goodness of Fit of Linear Regression Model Train Dataset")  
 print("Explained Variance (R^2):", linreg.score(X\_train\_scaled, y\_train))  
@@ -114,10 +115,10 @@ print("Goodness of Fit of Linear Regression Model Test Dataset")
 print("Explained Variance (R^2):", linreg.score(X\_test\_scaled, y\_test))  
 print("Mean Squared Error (MSE):", mean\_squared\_error(y\_test, y\_test\_pred))  
 print()
-
+```
 **Ridge Regression:**  
 To test the effect of different alpha values, we used a for loop with 9 iterations, corresponding to alpha(regularization strength) \= 1, 2, 3, 4, 5, 6, 7, 8, and 9 respectively. Each iteration trains the model with the same training dataset, and calculates R^2 and MSE values for the training and testing datasets.
-
+```python
 for x in \[1, 2, 3, 4, 5, 6, 7, 8, 9\]:  
     ridge\_modelx \= Ridge(alpha \= x)  \# alpha is the regularization strength  
     ridge\_modelx.fit(X\_train\_scaled, y\_train)
@@ -141,18 +142,18 @@ for x in \[1, 2, 3, 4, 5, 6, 7, 8, 9\]:
     print("Explained Variance (R^2):", ridge\_modelx.score(X\_test\_scaled, y\_test))  
     print("Mean Squared Error (MSE):", mean\_squared\_error(y\_test, y\_test\_pred))  
     print()
-
+```
 **K-fold Cross Validation:**  
 1\. The X datasets are split before processing. Therefore, we need to recombine the training and testing sets for cross validation. On the other hand, y is not processed, but to get a y dataset that corresponds to X for every data point, we need to recombine y datasets as well.
-
+```python
 \#Recombine X and y datasets  
 from scipy.sparse import vstack  
 X\_full \= vstack(\[X\_train\_scaled, X\_test\_scaled\])  
 y\_full \= pd.concat(\[y\_train, y\_test\], axis=0)
-
+```
 2\. 5-fold cross validation:   
 Split the dataset into 5 folds, with 1 fold being the testing dataset and the other 4 being the training set for every iteration. Therefore, a 5-fold cross validation gives us 5 iterations and 5 R^2 values for each model. By calculating the average values and standard deviation of the 5 R^2 values, we can compare and determine which model has better fit or more consistent performance. The ridge model with alpha \= 9 is chosen, which will be explained in the later section.
-
+```python
 \#k-fold  
 kf \= KFold(n\_splits \= 5, shuffle \= True, random\_state \= 42) \#5-fold validation  
 linear\_scores \= cross\_val\_score(linreg, X\_full, y\_full, cv \= kf, scoring \= 'r2')  
@@ -170,7 +171,7 @@ print("Ridge Regression : Mean R² \=", np.mean(ridge\_scores),  " | Standard de
 High R^2 on both train (0.99) and test (0.88) showing that the model captures strong linear relationships and can explain most of the variation in the data. MSE is small in both cases and shows that predictions are generally close to their actual values.
 
 However, there’s a drop in R² from training (0.99) to test (0.88). This suggests slight overfitting where the model performs a bit better on known data than unseen data. The gap is not big, so the model still generalizes well.
-
+```
 **Ridge Regression**
 
 As the alpha value increases, Training R^2 slightly decreases as regularisation limits model flexibility. Test R^2 increases and difference of R^2 values between train and test set as overfitting reduces. MSE also decreases on the test set showing a better generalisation.
